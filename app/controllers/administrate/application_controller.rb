@@ -120,10 +120,23 @@ module Administrate
     #   of a class of resources.
     # @param action_name [String, Symbol] The name of an action that might be
     #   possible to perform on a resource or resource class.
+    # @param parent_resource [Class, String, Symbol] A class of the parent resource,
+    # or the name of a class of the parent resource.
     # @return [Boolean] `true` if a route exists for the resource class and the
     #   action. `false` otherwise.
-    def existing_action?(resource, action_name)
-      routes.include?([resource.to_s.underscore.pluralize, action_name.to_s])
+    def existing_action?(resource, action_name, parent_resource = nil)
+      !!routes.detect do |controller, action, required_parts|
+        valid_parts = if parent_resource.nil?
+                        required_parts.difference(["id"]).empty?
+                      else
+                        parent_id = "#{parent_resource.to_s.underscore}_id"
+                        required_parts.include?(parent_id)
+                      end
+
+        valid_parts &&
+          action == action_name.to_s &&
+          controller == resource.to_s.underscore.pluralize
+      end
     end
     helper_method :existing_action?
 

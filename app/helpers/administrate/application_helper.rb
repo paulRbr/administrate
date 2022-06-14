@@ -43,15 +43,17 @@ module Administrate
     #   a class of resources, or the name of a class of resources.
     # @param action_name [String, Symbol] The name of an action that might be
     #   possible to perform on a resource or resource class.
+    # @param parent_target [ActiveRecord::Base, Class, Symbol, String] A parent resource,
+    #   a class of resources, or the name of a class of resources.
     # @return [Boolean] Whether the action both (a) exists for the record class,
     #   and (b) the current user is authorized to perform it on the record
     #   instance or class.
-    def accessible_action?(target, action_name)
-      target = target.to_sym if target.is_a?(String)
-      target_class_or_class_name =
-        target.is_a?(ActiveRecord::Base) ? target.class : target
-
-      existing_action?(target_class_or_class_name, action_name) &&
+    def accessible_action?(target, action_name, parent_target = nil)
+      existing_action?(
+        class_or_class_name(target),
+        action_name,
+        class_or_class_name(parent_target)
+      ) &&
         authorized_action?(target, action_name)
     end
 
@@ -96,6 +98,11 @@ module Administrate
     def default_resource_name(name, opts = {})
       resource_name = (opts[:singular] ? name.to_s : name.to_s.pluralize)
       resource_name.tr("/", "_").titleize
+    end
+
+    def class_or_class_name(target)
+      target = target.to_sym if target.is_a?(String)
+      target.is_a?(ActiveRecord::Base) ? target.class : target
     end
   end
 end
