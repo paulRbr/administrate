@@ -1,4 +1,8 @@
-<% [valid_action?(:edit, collection_presenter.resource_name),
-    valid_action?(:destroy, collection_presenter.resource_name)].count(true).times do %>
+<% [
+    page.try(:resource).present? && valid_action?(:edit, collection_presenter.resource_name, page.resource) ||
+    valid_action?(:edit, collection_presenter.resource_name),
+    page.try(:resource).present? && valid_action?(:destroy, collection_presenter.resource_name, page.resource) ||
+    valid_action?(:destroy, collection_presenter.resource_name)
+].count(true).times do %>
   <th scope="col"></th>
 <% end %>
