@@ -1,4 +1,6 @@
-<% [existing_action?(collection_presenter.resource_name, :edit),
-    existing_action?(collection_presenter.resource_name, :destroy)].count(true).times do %>
+<% [
+  existing_action?(collection_presenter.resource_name, :edit, page.try(:resource)&.class) || existing_action?(collection_presenter.resource_name, :edit),
+  existing_action?(collection_presenter.resource_name, :destroy, page.try(:resource)&.class) || existing_action?(collection_presenter.resource_name, :destroy)
+].count(true).times do %>
   <th scope="col" class="cell-label--action-button"></th>
 <% end %>
