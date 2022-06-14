@@ -13,8 +13,8 @@ module Administrate
     def routes
       @routes ||= all_routes.select do |controller, _action|
         controller.starts_with?("#{namespace}/")
-      end.map do |controller, action|
-        [controller.gsub(/^#{namespace}\//, ""), action]
+      end.map do |controller, action, required_parts|
+        [controller.gsub(/^#{namespace}\//, ""), action, required_parts]
       end
     end
 
@@ -28,7 +28,8 @@ module Administrate
 
     def all_routes
       Rails.application.routes.routes.map do |route|
-        route.defaults.values_at(:controller, :action).map(&:to_s)
+        route.defaults.values_at(:controller, :action).map(&:to_s) +
+          [route.required_parts.map(&:to_s)]
       end
     end
   end
