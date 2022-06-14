@@ -106,8 +106,19 @@ module Administrate
     end
 
     helper_method :valid_action?
-    def valid_action?(name, resource = resource_class)
-      routes.include?([resource.to_s.underscore.pluralize, name.to_s])
+    def valid_action?(name, resource = resource_class, parent_resource = nil)
+      !!routes.detect do |controller, action, required_parts|
+        valid_parts = if parent_resource.nil?
+                        required_parts.difference(["id"]).empty?
+                      else
+                        parent_id = "#{parent_resource.to_s.underscore}_id"
+                        required_parts.include?(parent_id)
+                      end
+
+        valid_parts &&
+          action == name.to_s &&
+          controller == resource.to_s.underscore.pluralize
+      end
     end
 
     def routes
